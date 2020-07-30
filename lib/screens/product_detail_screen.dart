@@ -17,11 +17,45 @@ class ProductDetailScreen extends StatelessWidget {
     // gavus id, noriu per ji gauti VISA likusia informacija kuri priklauso tam tikrai prekei
 
 //  cia nenoriu klausytis change'u is products file'o
-    final loadedProduct = Provider.of<Products>(context, listen: false).findById(productId);
+    final loadedProduct =
+        Provider.of<Products>(context, listen: false).findById(productId);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(loadedProduct.title),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              height: 300,
+              child: Image.network(
+                loadedProduct.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              '\$${loadedProduct.productId}',
+              style: TextStyle(color: Colors.grey, fontSize: 20),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Text(
+                loadedProduct.description,
+                textAlign: TextAlign.center,
+                softWrap: true,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

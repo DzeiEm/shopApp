@@ -3,12 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 
 import 'package:shop_app/providers/product.dart';
+import 'package:shop_app/providers/cart.dart';
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // clipRrect -> atskiras widget'as kuris duoda galimybe uzroundint boarder'ius
     final product = Provider.of<Product>(context, listen: false); 
+    final cart = Provider.of<Cart>(context, listen: false);
+
+
     print('product rebuilds');
 
     return ClipRRect(
@@ -45,7 +49,9 @@ class ProductItem extends StatelessWidget {
             trailing: IconButton(
               icon: Icon(Icons.shopping_cart),
               color: Theme.of(context).accentColor,
-              onPressed: () {},
+              onPressed: () {
+               cart.addItem(product.productId, product.price, product.title);
+              },
             ),
             title: Text(
               product.title,
