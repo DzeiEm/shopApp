@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/screens/cart_screen.dart';
 import '../widgets/product_grid.dart';
 import '../widgets/badge.dart';
-import 'package:shop_app/providers/products.dart';
 import 'package:shop_app/providers/cart.dart';
 
 enum FilterOptions {
