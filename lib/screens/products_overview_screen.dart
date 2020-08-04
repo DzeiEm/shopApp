@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/screens/cart_screen.dart';
+import 'package:shop_app/widgets/app_drawer.dart';
 import '../widgets/product_grid.dart';
 import '../widgets/badge.dart';
+import '../providers/products.dart';
 import 'package:shop_app/providers/cart.dart';
 
 enum FilterOptions {
@@ -17,6 +19,38 @@ class ProductsOverViewScreen extends StatefulWidget {
 
 class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
   var _showOnlyFavorites = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    // Provider.of<Products>(context).fetchAndSetProducts(); WONT WORK
+    // workaround opption(see below)
+    // Future.delayed(Duration.zero).then((value) {
+    //   Provider.of<Products>(context).fetchAndSetProducts();
+    // });
+
+    super.initState();
+  }
+
+//  sitas bus iskviestas vienam kartui, kai widget'as pilnai uzsikraus, bet pries -build-ui uzsikrovus.
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +87,6 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
             builder: (_, cart, ch) => Badge(
               child: ch,
               value: cart.itemCount.toString(),
-            
             ),
             child: IconButton(
               icon: Icon(
@@ -66,7 +99,12 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
           )
         ],
       ),
-      body: ProductGrid(_showOnlyFavorites),
+      drawer: AppDrawer(),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductGrid(_showOnlyFavorites),
     );
   }
 }

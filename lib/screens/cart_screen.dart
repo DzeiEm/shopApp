@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/cart.dart' show Cart;
+import '../providers/cart.dart';
 import '../widgets/cart_item.dart';
 import '../providers/order.dart';
-
-
 
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart-screen';
@@ -15,7 +13,6 @@ class CartScreen extends StatelessWidget {
     // duodamas access to the cart
     //  klausausi pasikeitimu , kas vyksta cart'e
     final cart = Provider.of<Cart>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Cart'),
@@ -36,7 +33,7 @@ class CartScreen extends StatelessWidget {
                   Spacer(),
                   Chip(
                     label: Text(
-                      '\$${cart.totalAmount}',
+                      '\$${cart.totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.white),
                     ),
@@ -54,6 +51,7 @@ class CartScreen extends StatelessWidget {
                       );
                       cart.clearCart();
                     },
+                    textColor: Colors.grey,
                   ),
                 ],
               ),
@@ -65,7 +63,7 @@ class CartScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               itemCount: cart.items.length,
-              itemBuilder: (ctx, index) => CartItem(
+              itemBuilder: (ctx, index) => CartItemContainer(
                 cart.items.values.toList()[index].id,
                 cart.items.keys.toList()[index],
                 cart.items.values.toList()[index].price,
