@@ -9,6 +9,10 @@ import '../modal/http_exception.dart';
 class Products with ChangeNotifier {
   List<Product> _items = [];
 
+  final String authToken;
+  final String userId;
+  Products(this.authToken, this.userId, this._items);
+
   // var _showFavoritesOnly = false;
 
 // tai yra kopija _tems'u
@@ -35,17 +39,25 @@ class Products with ChangeNotifier {
     // _showFavoritesOnly = false;
     // notifyListeners();
   }
-
-  Future<void> fetchAndSetProducts() async {
-    const url = 'https://shopapp-99722.firebaseio.com/products.json';
+//  bool "[]" reiskia fliteredBy optional, galii buti gali nebuti
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    //  sitas nusako, kad noriu gauti butent tuos productus, atfiltravus pagal user'i .
+    final filterString = filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    var url =
+        'https://shopapp-99722.firebaseio.com/products.json?auth=$authToken&$filterString';
     try {
       final response = await http.get(url);
       //  perduodam dynamic nes ten eina map'as. jei neidesim dynamic dart'as keiksis
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      if (extractedData == null){
+      if (extractedData == null) {
         return;
       }
+      url =
+          'https://shopapp-99722.firebaseio.com/userFavorites/$userId.json?auth=$authToken';
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+      final List<Product> loadedProducts = [];
+
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(
           Product(
@@ -53,7 +65,7 @@ class Products with ChangeNotifier {
               title: prodData['title'],
               description: prodData['description'],
               price: prodData['price'],
-              isFavorite: prodData['isFavorite'],
+              isFavorite: favoriteData == null ? false :favoriteData[prodId] ?? false,
               imageUrl: prodData['imageUrl']),
         );
       });
@@ -68,7 +80,8 @@ class Products with ChangeNotifier {
     // paskutinis zodis products yra dadedas nuo manes..
     // pridedantt ji.. firebase susikurtu collectionas
     //  dauguma API nepraso .json pabaigoje - bet firebase praso
-    const url = 'https://shopapp-99722.firebaseio.com/products.json';
+    final url =
+        'https://shopapp-99722.firebaseio.com/products.json?=$authToken';
     try {
       // kadangi turime palaukti kol bus surista su serveriu.. kai tik serveris pasiruoses,
       //  tode tada -then- irasome nauja product'a
@@ -80,6 +93,7 @@ class Products with ChangeNotifier {
           'price': product.price,
           'isFavorite': product.isFavorite,
           'imageUrl': product.imageUrl,
+          'creatorId': userId,
         }),
       );
 
@@ -107,7 +121,8 @@ class Products with ChangeNotifier {
         _items.indexWhere((prod) => prod.productId == productId);
 
     if (productIndex >= 0) {
-      final url = 'https://shopapp-99722.firebaseio.com/products/$productId.json';
+      final url =
+          'https://shopapp-99722.firebaseio.com/products/$productId.json?auth=$authToken';
       // visi keys zodeliai turi sutapti su zodeliais firebase'e
       // ca noriu update'inti tik tuos laukus kuriuos irasiau, like turi likti kaip yra
       await http.patch(url,

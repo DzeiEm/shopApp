@@ -10,7 +10,9 @@ class UserProductsScreen extends StatelessWidget {
   static const routeName = 'user-product-screen';
 
   Future<void> _refreshProducts(BuildContext context) async {
-    await Provider.of<Products>(context).fetchAndSetProducts();
+    //  cia kur iskvieciu ta funkcija reikia nustatyti true.. nelabai zinau kode
+    await Provider.of<Products>(context, listen: false)
+        .fetchAndSetProducts(true);
   }
 
   @override
@@ -29,23 +31,34 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: ListView.builder(
-            itemCount: productsData.items.length,
-            itemBuilder: (context, index) => Column(
-              children: [
-                UserProductItem(
-                    productsData.items[index].productId,
-                    productsData.items[index].title,
-                    productsData.items[index].imageUrl),
-                Divider(),
-              ],
-            ),
-          ),
-        ),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (context, snapshot) =>
+            // mum reikia palaukti kol product'ai bus isrusiuoti firebase'e
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<Products>(
+                      builder: (context, productsData, _) => Padding(
+                        padding: EdgeInsets.all(10),
+                        child: ListView.builder(
+                          itemCount: productsData.items.length,
+                          itemBuilder: (context, index) => Column(
+                            children: [
+                              UserProductItem(
+                                  productsData.items[index].productId,
+                                  productsData.items[index].title,
+                                  productsData.items[index].imageUrl),
+                              Divider(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
       ),
     );
   }

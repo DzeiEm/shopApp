@@ -13,11 +13,14 @@ enum FilterOptions {
 }
 
 class ProductsOverViewScreen extends StatefulWidget {
+  static const routeName = '/products-overview';
+  
   @override
   _ProductsOverViewScreenState createState() => _ProductsOverViewScreenState();
 }
 
 class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
+  
   var _showOnlyFavorites = false;
   var _isInit = true;
   var _isLoading = false;
@@ -48,7 +51,6 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
       });
     }
     _isInit = false;
-
     super.didChangeDependencies();
   }
 

@@ -4,6 +4,7 @@ import 'package:shop_app/screens/product_detail_screen.dart';
 
 import 'package:shop_app/providers/product.dart';
 import 'package:shop_app/providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   @override
@@ -11,6 +12,7 @@ class ProductItem extends StatelessWidget {
     // clipRrect -> atskiras widget'as kuris duoda galimybe uzroundint boarder'ius
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
 
     print('product rebuilds');
 
@@ -40,7 +42,7 @@ class ProductItem extends StatelessWidget {
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               color: Theme.of(context).accentColor,
               onPressed: () {
-                product.toggleFavoriteStatus();
+                product.toggleFavoriteStatus(authData.token, authData.userId);
               },
             ),
             child: Text('Never changes!'),

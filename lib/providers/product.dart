@@ -24,16 +24,17 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = 'https://shopapp-99722.firebaseio.com/products/$productId.json';
+    //  sitas requestas bus sukurtas naujai specialiai pagal user'io uzlike'intus productus
+    final url = 'https://shopapp-99722.firebaseio.com/userFavorites/$userId/$productId.json?auth=$token';
     try {
-      final response = await http.patch(
+      final response = await http.put(
         url,
         body: json.encode({
-          'isFavorite': isFavorite,
+          isFavorite,
         }),
       );
       if (response.statusCode >= 400) {
